@@ -28,17 +28,17 @@ int main(){
 		cmd[val-1]='\0';
 		
 		int pid,status;
+		clock_gettime(clk_id, &tp1);    //Première mesure de temps 
 		pid = fork();
 		
 //Processus père
 		if( pid != 0) {  
 			wait(&status);
-			clock_gettime(clk_id, &tp2);	//Deuxième mesure
+			clock_gettime(clk_id, &tp2);	//Deuxième mesure de temps 
 			}
 			
 //Processus fils 
 		else{
-			clock_gettime(clk_id, &tp1);    //Première mesure 
 			execlp(cmd,cmd,(char*)NULL);
 			exit(-1);
 		}
@@ -51,12 +51,12 @@ int main(){
 //Affichage du prompt et de l'état de la commande 
 		
 		if(WIFEXITED(status)){
-			int time = (tp2.tv_nsec-tp1.tv_nsec)/1000000;    //On calcule le temps d'execution pour l'afficher 
+			int time = ((tp2.tv_sec-tp1.tv_sec)*1000)+(tp2.tv_nsec-tp1.tv_nsec)/1000000;    //On calcule le temps d'execution pour l'afficher 
 			sprintf(newprompt,"enseash [exit:%d|%d ms] %%",WEXITSTATUS(status),time);
 			write(STDOUT_FILENO,newprompt,strlen(newprompt));					//On affiche le nouveau prompt
 		} 
 		else if (WIFSIGNALED(status)){
-			int time = (tp2.tv_nsec-tp1.tv_nsec)/1000000;
+			int time = ((tp2.tv_sec-tp1.tv_sec)*1000)+(tp2.tv_nsec-tp1.tv_nsec)/1000000;
 			sprintf(newprompt,"enseash [sign:%d|%d ms] %%",WTERMSIG(status),time);
 			write(STDOUT_FILENO,newprompt,strlen(newprompt));					//On affiche le nouveau prompt
 		}
